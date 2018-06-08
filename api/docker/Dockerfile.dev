@@ -1,0 +1,12 @@
+FROM php:7
+RUN apt-get update -y && apt-get install -y openssl zip unzip git mysql-client \
+  && docker-php-ext-install pdo_mysql
+RUN curl -sS https://getcomposer.org/installer | php -- --quiet
+RUN mv composer.phar /usr/local/bin/composer
+RUN docker-php-ext-install pdo mbstring
+WORKDIR /usr/src/api
+COPY . /usr/src/api
+RUN composer install
+RUN php artisan key:generate
+EXPOSE 8080
+CMD php artisan serve --host=0.0.0.0 --port=8080

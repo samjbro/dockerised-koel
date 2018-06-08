@@ -1,0 +1,73 @@
+version: '3'
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: docker/Dockerfile.dev
+    image: koel-server
+    ports:
+      - '80:80'
+    networks:
+      - koel-net
+    depends_on:
+      - app
+  app:
+    build:
+      context: ./app
+      dockerfile: docker/Dockerfile.dev
+    image: koel-app
+    ports:
+      - '3000:3000'
+    networks:
+      - koel-net
+    volumes:
+      - ./app:/usr/src/app
+      - app_node_modules:/usr/src/app/node_modules
+  api:
+    build:
+      context: ./api
+      dockerfile: docker/Dockerfile.dev
+    image: koel-api
+    ports:
+      - '8080:8080'
+    networks:
+      - koel-net
+    volumes:
+      - ./api:/usr/src/api
+      - api_vendor_files:/usr/src/api/vendor
+  mysql:
+    image: mysql:5.7
+    ports:
+      - "${DB_PORT}:3306"
+    environment:
+#      MYSQL_DATABASE: homestead
+#      MYSQL_USER: homestead
+#      MYSQL_PASSWORD: secret
+#      MYSQL_ROOT_PASSWORD: secret
+#      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASS}"
+#      MYSQL_DATABASE: "${DB_NAME}"
+#      MYSQL_USER: "${DB_USER}"
+#      MYSQL_PASSWORD: "${DB_PASS}"
+
+#      MYSQL_ROOT_PASSWORD: secret
+#      MYSQL_DATABASE: helpspot
+#      MYSQL_USER: helpspot
+#      MYSQL_PASSWORD: secret
+
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: koel
+      MYSQL_USER: koel-admin
+      MYSQL_PASSWORD: secret
+    volumes:
+      - mysqldata:/var/lib/mysql
+    networks:
+      - koel-net
+    ports:
+      - '33061:3306'
+networks:
+  koel-net:
+    driver: bridge
+volumes:
+  app_node_modules:
+  api_vendor_files:
+  mysqldata:
